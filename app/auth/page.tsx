@@ -1,0 +1,5 @@
+"use client";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+
+export default function AuthPage() { const [email,setEmail]=useState(""); const [message,setMessage]=useState(""); async function signIn(e:React.FormEvent){e.preventDefault(); const {error}=await createClient().auth.signInWithOtp({email,options:{emailRedirectTo:`${location.origin}/auth/callback`}}); setMessage(error?error.message:"Check your email for your secure sign-in link.");} return <main className="shell"><nav className="nav"><a className="brand" href="/">proof<i>ly</i></a></nav><section className="details"><h1 style={{fontSize:48}}>Welcome back</h1><p className="lead">Sign in securely to book, complete services, and write reviews.</p><form className="profile" onSubmit={signIn}><label>Email<br/><input required type="email" value={email} onChange={e=>setEmail(e.target.value)} style={{width:"100%",padding:12,margin:"8px 0 16px"}} placeholder="you@example.com"/></label><button className="button">Send sign-in link</button>{message&&<p className="notice">{message}</p>}</form></section></main>; }
