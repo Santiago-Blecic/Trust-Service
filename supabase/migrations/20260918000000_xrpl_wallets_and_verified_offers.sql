@@ -26,7 +26,6 @@ declare profile_record public.profiles; service_id uuid; safe_slug text;
 begin
   select * into profile_record from public.profiles where id = (select auth.uid()) for update;
   if not found or profile_record.wallet_address is null or profile_record.account_type <> 'provider' then raise exception 'Create a provider wallet first'; end if;
-  if not exists (select 1 from auth.users where id = (select auth.uid()) and email_confirmed_at is not null) then raise exception 'Confirm your email before applying as a provider'; end if;
   if char_length(trim(p_bio)) < 30 or char_length(trim(p_title)) < 3 or char_length(trim(p_description)) < 30 or char_length(trim(p_category)) < 3 or p_price_cents not between 100 and 1000000 then raise exception 'Invalid provider application'; end if;
   insert into public.providers(id,bio,wallet_address,is_published,verification_status)
     values(profile_record.id,trim(p_bio),profile_record.wallet_address,false,'pending')

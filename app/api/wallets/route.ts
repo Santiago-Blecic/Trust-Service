@@ -7,7 +7,7 @@ const xrplUrl = process.env.XRPL_WSS_URL || "wss://s.altnet.rippletest.net:51233
 export async function POST(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email_confirmed_at) return NextResponse.json({ error: "Confirm your email before creating a wallet." }, { status: 403 });
+  if (!user) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   const { accountType } = await request.json();
   if (accountType !== "buyer" && accountType !== "provider") return NextResponse.json({ error: "Choose buyer or provider." }, { status: 400 });
   const { data: profile } = await supabase.from("profiles").select("wallet_address").eq("id", user.id).single();

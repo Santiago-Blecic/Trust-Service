@@ -31,7 +31,7 @@ Proofly is an XRPL Testnet-backed marketplace for local services. It deliberatel
 
 ## Trust model
 
-1. A person creates a name, email and password account, confirms their email, and creates a funded self-custody XRP Testnet wallet.
+1. A person creates a unique name and password account, then creates a funded self-custody XRP Testnet wallet.
 2. The wallet seed is returned once and encrypted locally in that browser with the wallet password. It is never stored in Supabase or sent to Proofly after creation.
 3. A provider application remains private until a human reviewer has validated the person's identity and sets the provider to approved.
 4. A booking is paid by a wallet-signed XRP Testnet Payment. The server independently validates the transaction hash, sender, recipient, amount and ledger validation state.
@@ -49,7 +49,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=from Supabase → Connect
 XRPL_WSS_URL=wss://s.altnet.rippletest.net:51233
 ```
 
-In Supabase Authentication URL Configuration set your worker domain as the Site URL and add `/auth/callback` as a redirect URL.
+In Supabase Authentication → Providers → Email, turn **Confirm email** off. Proofly uses the entered unique name as a private technical login ID and does not collect an email address. Because there is no email address, password recovery is intentionally unavailable. The existing callback URL may remain configured.
 
 ## Database deployment
 
