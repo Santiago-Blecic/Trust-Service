@@ -16,13 +16,20 @@ export async function POST(request: Request) {
   const client = new Client(xrplUrl);
   try {
     await client.connect();
-    const funded = await client.fundWallet(wallet);
+    const funded = await client.fundWallet(wallet, {
+      // Explicit values avoid faucet auto-discovery, which is unreliable in a
+      // Cloudflare Worker WebSocket runtime.
+      faucetHost: "faucet.altnet.rippletest.net",
+      faucetPath: "/accounts",
+      faucetProtocol: "https",
+      usageContext: "proofly-testnet-wallet",
+    });
     const { error } = await supabase.rpc("register_wallet", { p_address: wallet.classicAddress, p_account_type: accountType });
     if (error) throw error;
     return NextResponse.json({ address: wallet.classicAddress, seed: wallet.seed, balanceXrp: dropsToXrp(funded.balance) }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Wallet creation failed" }, { status: 400 });
   } finally {
-    await client.disconnect();
+    if (client.isConnected()) await client.disconnect();
   }
 }
