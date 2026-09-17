@@ -24,7 +24,7 @@ function fromBase64(value: string) {
 
 async function deriveKey(password: string, salt: Uint8Array) {
   const material = await crypto.subtle.importKey("raw", asArrayBuffer(new TextEncoder().encode(password)), "PBKDF2", false, ["deriveKey"]);
-  return crypto.subtle.deriveKey({ name: "PBKDF2", salt: asArrayBuffer(salt), iterations: 210000, hash: "SHA-256" }, material, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+  return crypto.subtle.deriveKey({ name: "PBKDF2", salt: asArrayBuffer(salt), iterations: 210000, hash: { name: "SHA-256" } }, material, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
 }
 
 export async function storeWalletSeed(address: string, seed: string, password: string) {
