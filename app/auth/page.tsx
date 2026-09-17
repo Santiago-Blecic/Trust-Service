@@ -8,7 +8,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   async function submit(event: React.FormEvent) {
-    event.preventDefault(); const supabase = createClient();
+    event.preventDefault(); const supabase = await createClient();
     const handle = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     if (handle.length < 3 || handle.length > 40) return setMessage("Your name must contain 3–40 letters or numbers.");
     if (password.length < 10) return setMessage("Your password must contain at least 10 characters.");
