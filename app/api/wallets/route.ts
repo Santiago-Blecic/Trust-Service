@@ -14,8 +14,10 @@ export async function POST(request: Request) {
   if (profile?.wallet_address) return NextResponse.json({ error: "This account already has a wallet." }, { status: 409 });
   const wallet = Wallet.generate();
   const client = new Client(xrplUrl);
+  let stage = "connect to the XRPL Testnet";
   try {
     await client.connect();
+    stage = "fund the new XRPL Testnet wallet";
     const funded = await client.fundWallet(wallet, {
       // Explicit values avoid faucet auto-discovery, which is unreliable in a
       // Cloudflare Worker WebSocket runtime.
@@ -24,11 +26,13 @@ export async function POST(request: Request) {
       faucetProtocol: "https",
       usageContext: "proofly-testnet-wallet",
     });
+    stage = "save the wallet address in Supabase";
     const { error } = await supabase.rpc("register_wallet", { p_address: wallet.classicAddress, p_account_type: accountType });
     if (error) throw error;
     return NextResponse.json({ address: wallet.classicAddress, seed: wallet.seed, balanceXrp: dropsToXrp(funded.balance) }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Wallet creation failed" }, { status: 400 });
+    console.error("Proofly wallet creation failed", { stage, message: error instanceof Error ? error.message : String(error) });
+    return NextResponse.json({ error: `Could not ${stage}: ${error instanceof Error ? error.message : "Unknown error"}` }, { status: 400 });
   } finally {
     if (client.isConnected()) await client.disconnect();
   }
