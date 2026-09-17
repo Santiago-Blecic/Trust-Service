@@ -5,11 +5,10 @@
   "engines": { "node": ">=20.9.0" },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && opennextjs-cloudflare build --skipNextBuild",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "build:cloudflare": "opennextjs-cloudflare build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
