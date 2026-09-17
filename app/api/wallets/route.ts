@@ -23,7 +23,6 @@ export async function POST(request: Request) {
       // Cloudflare Worker WebSocket runtime.
       faucetHost: "faucet.altnet.rippletest.net",
       faucetPath: "/accounts",
-      faucetProtocol: "https",
       usageContext: "proofly-testnet-wallet",
     });
     stage = "save the wallet address in Supabase";
