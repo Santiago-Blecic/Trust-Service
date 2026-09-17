@@ -5,16 +5,22 @@ import { createClient } from "@/lib/supabase/server";
 const testnetFaucetUrl = "https://faucet.altnet.rippletest.net/accounts";
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
-  const { accountType } = await request.json();
-  if (accountType !== "buyer" && accountType !== "provider") return NextResponse.json({ error: "Choose buyer or provider." }, { status: 400 });
-  const { data: profile } = await supabase.from("profiles").select("wallet_address").eq("id", user.id).single();
-  if (profile?.wallet_address) return NextResponse.json({ error: "This account already has a wallet." }, { status: 409 });
-  const wallet = Wallet.generate();
-  let stage = "fund the new XRPL Testnet wallet";
+  let stage = "initialize Supabase";
   try {
+    const supabase = await createClient();
+    stage = "verify your Proofly session";
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    stage = "read the wallet request";
+    const { accountType } = await request.json();
+    if (accountType !== "buyer" && accountType !== "provider") return NextResponse.json({ error: "Choose buyer or provider." }, { status: 400 });
+    stage = "check whether this account already has a wallet";
+    const { data: profile, error: profileError } = await supabase.from("profiles").select("wallet_address").eq("id", user.id).single();
+    if (profileError) throw profileError;
+    if (profile?.wallet_address) return NextResponse.json({ error: "This account already has a wallet." }, { status: 409 });
+    stage = "generate a secure XRP wallet";
+    const wallet = Wallet.generate();
+    stage = "fund the new XRPL Testnet wallet";
     // Calling the official HTTPS faucet directly avoids the Node/WebSocket
     // internals in xrpl.js that are incompatible with Cloudflare Workers.
     const faucetResponse = await fetch(testnetFaucetUrl, {
